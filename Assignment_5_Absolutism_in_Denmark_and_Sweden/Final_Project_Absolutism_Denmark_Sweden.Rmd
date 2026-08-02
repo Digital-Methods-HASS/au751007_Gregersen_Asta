@@ -1,0 +1,454 @@
+---
+title: "Final Project: Absolutism in Denmark and Sweden"
+author: "Asta Hoegh Gregersen"
+date: "2026-05-16"
+output: html_document
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Thoughts before starting the analysis
+As has been outlined in the written part of this assignment, the research question at the center of this assignment is whether absolutism had a positive effect on the duration of reign for the absolute monarchs of Denmark and Sweden. 
+My initial thought is that because absolutism clearly defined the power of the monarchs, and put a stop to struggles over the throne, this led to longer reigns. 
+The monarchs lived longer, and were thus able to reign longer. Absolutism was in effect in Denmark for almost 200 years, so it is supremely relevant to focus on the Danish monarchy when exploring the effects of absolutism.  
+Absolutism in Sweden is very interesting. Unlike other European nations, where absolutism was in effect for very long. Absolutism in Sweden only lasted for 47 years. 
+The two Swedish absolute monarchs did reign for very long. However, this does not necessarily mean that absolutism had a positive effect on their duration of reign. 
+I suspect that the average duration of reign will be higher during both Danish and Swedish absolutism. This is relevant, but it is not enough to answer the research question. Different plots will be created, which will then be explored in depth in the written part of the assignment, Then one is able to better discern whether absolutism did have a positive effect on the reigns of the Danish and Swedish monarchs. 
+
+
+## Loading relevant packages 
+```{r}
+library(tidyverse)
+library(here)
+```
+
+
+## Creating relevant folders
+```{r}
+dir.create("data")
+dir.create("figures")
+```
+
+
+## Creating dataframes from the datasets
+```{r}
+danish_monarchs <-read.csv2("data/danish_monarchs_dataset_2026.CSV")
+danish_monarchs
+```
+
+
+```{r}
+swedish_monarchs <-read.csv2("data/swedish_monarchs_dataset_2026.CSV")
+swedish_monarchs
+```
+
+
+## Creating vectors of the columns of the dataset containing Danish monarchs 
+```{r}
+regent_denmark<-danish_monarchs[[1]]
+gender_denmark<-danish_monarchs[[2]]
+birth_denmark<-danish_monarchs[[3]]
+death_denmark<-danish_monarchs[[4]]
+first_year_ruled_denmark<-danish_monarchs[[5]]
+last_year_ruled_denmark<-danish_monarchs[[6]]
+```
+
+
+## Creating vectors of the columns of the dataset containing Swedish monarchs 
+```{r}
+regent_sweden<-swedish_monarchs[[1]]
+gender_sweden<-swedish_monarchs[[2]]
+birth_sweden<-swedish_monarchs[[3]]
+death_sweden<-swedish_monarchs[[4]]
+first_year_ruled_sweden<-swedish_monarchs[[5]]
+last_year_ruled_sweden<-swedish_monarchs[[6]]
+```
+
+
+## Creating a new column in each dataset 
+This assignment has a focus on duration of reign in relation to absolutism. To examine this, a column containing the number of years each monarch reigned is required. Within both dataframes, a new column is created, containing the number of years each monarch ruled. The columns are going to be called no_years_ruled in each dataframe. A vector is then created of each of these columns, and the work with the data can begin. 
+
+```{r}
+danish_monarchs<-danish_monarchs%>%mutate(no_years_ruled=last_year_ruled-as.numeric(first_year_ruled))
+         
+no_years_ruled_denmark<-danish_monarchs[[7]]
+
+no_years_ruled_denmark
+
+```
+
+```{r}
+swedish_monarchs<-swedish_monarchs%>%mutate(no_years_ruled=last_year_ruled-as.numeric(first_year_ruled))
+         
+no_years_ruled_sweden<-swedish_monarchs[[7]]
+
+no_years_ruled_sweden
+```
+
+
+# Working with the data
+The hypothesis at the center of this project, is that monarchs, whether Danish or Swedish, on average reigned longer during absolutism. The average duration of reign overall, before and during absolutism will be found. Then, the different averages can be compared. 
+
+# Average duration of reign in Denmark in relation to absolutism 
+
+The column 'no_years_ruled' has been made into a vector, and then the average duration of reign across all monarchs can be found, using the mean() function. 
+```{r}
+mean(no_years_ruled_denmark,na.rm=TRUE)
+```
+Thus, the overall average duration of reigns for the Danish monarchs are 19,4 years. 
+
+# Creating two new dataframes using the datasets containing the Danish monarchs 
+
+## Creating a dataframe containing only the Danish monarchs that ruled during absolutism
+
+Now, two new data frames will be created. The first will contain the monarchs who ruled during absolutism. The second will contain the monarchs who ruled before absolutism. This will firstly be done with the Danish monarchs, and then with the Swedish monarchs in the next part of the assignment. 
+
+After having conducted research about the Danish monarchs that reigned during absolutism, I know that the monarch who introduced absolutism was Frederik the 3rd, whose reign began in 1648. The last king to rule during absolutism was Christian the 8th. His death in 1848 marked the end of absolutism in Denmark. 
+
+The filter() function is used to create the new data frame. 
+Using first_year_ruled_denmark>1647, any monarch who reigned before 1647 is excluded, as Frederik the 3rd ascended the throne in 1648. 
+Using last_year_ruled_denmark<1849, any monarchs who ruled after 1849 are excluded and Christian the 8th is included, as the last year of his reign was 1848. 
+
+no_years_ruled_denmark!= "NA" ensures that any monarchs whose reign does not have either a start or an end, due to insufficient historical knowledge, are not included in the dataframe.  
+ 
+```{r}
+danish_monarchs_during_absolutism <- filter(danish_monarchs,first_year_ruled_denmark>1647,
+       last_year_ruled_denmark<1849, no_years_ruled_denmark!="NA")
+danish_monarchs_during_absolutism
+```
+Now that a new dataframe has been created, one can make a vector of the column no_years_ruled, and then use the mean() function to find the average duration of reign for the 8 monarchs that reigned during absolutism. 
+
+```{r}
+no_years_ruled_during_absolutism_denmark <- danish_monarchs_during_absolutism[[7]]
+
+no_years_ruled_during_absolutism_denmark
+
+mean(no_years_ruled_during_absolutism_denmark,na.rm=TRUE)
+```
+Thus, the average duration of reign during absolutism was 25, which is 5,6 years higher than the average duration of reign for all the Danish monarchs. 
+
+Now, a third data frame will be created, which contains only the monarchs that reigned before absolutism. Then one is able to compare the overall average duration of reign, the average duration of reign during absolutism and the average duration of reign before absolutism. 
+
+## Creating a dataframe containing only the Danish monarchs that reigned before absolutism 
+
+The same functions as was used to create the previous data frame, is employed. first_year_ruled_denmark<1647 ensured that only the kings who reigned before Frederik the 3rd ascended the throne in 1648, are included. 
+```{r}
+danish_monarchs_before_absolutism <- filter(danish_monarchs,first_year_ruled_denmark<1647, no_years_ruled_denmark!="NA")
+
+danish_monarchs_before_absolutism
+```
+
+Then, the column containing the number of years reigned can be made into a vector, and the mean() function can be used to find the average duration of reign for the Danish monarchs before absolutism. 
+```{r}
+no_years_ruled_before_absolutism_denmark <- danish_monarchs_before_absolutism[[7]]
+
+no_years_ruled_before_absolutism_denmark
+
+mean(no_years_ruled_before_absolutism_denmark,na.rm=TRUE)
+```
+The average duration of reign before absolutism was 16,7 years. This is 2,7 years shorter than the overall average, and 8,3 years shorter than the average duration of reign during absolutism. Thus, the monarchs that ruled during absolutism did indeed ruled longer on average than the monarchs who ruled before absolutism. They also ruled longer than the overall average across all Danish monarchs through time. 
+
+
+## Average duration of reign in Sweden in relation to absolutism 
+In order to compare absolutism in Denmark and Sweden, the same calculations must be performed. 
+
+```{r}
+mean(no_years_ruled_sweden,na.rm=TRUE)
+```
+Thus, the overall median duration of reigns for the Swedish monarchs are 13,1 years. 
+
+# Creating two new dataframes using the datasets containing the Swedish monarchs
+
+## Creating a dataframe containing only the Swedish monarchs that reigned during absolutism
+
+Now, as has been done previously, two new data frames will be created. The first will contain the monarchs who ruled during absolutism in Sweden. The second will contain the Swedish monarchs who ruled before absolutism.
+
+After having conducted research about absolutism in Sweden, I know that absolutism officially began in 1672, when Karl the 11th became of legal age, and ended in 1719, after Karl the 12th death in 1718 
+
+The filter() function is once again used.
+Using first_year_ruled_sweden>1659, any monarch who reigned before 1659 is excluded, as Karl the 11th ascended the throne in 1659. 
+Using last_year_ruled_sweden<1720, any monarchs who ruled after 1720 are excluded and Karl the 12th is included, as his last year of reign was 1719.
+ 
+```{r}
+swedish_monarchs_during_absolutism <- filter(swedish_monarchs,first_year_ruled_sweden>1659,
+       last_year_ruled_sweden<1720, no_years_ruled_sweden!="NA",birth!="NA")
+
+swedish_monarchs_during_absolutism
+```
+Now that a new dataframe has been created, one can make a vector of the column duration_sweden, and then use the mean() function to find the average duration of reign for the 2 monarchs that reigned during absolutism in Sweden. 
+
+```{r}
+no_years_ruled_during_absolutism_sweden <- swedish_monarchs_during_absolutism[[7]]
+
+no_years_ruled_during_absolutism_sweden
+
+mean(no_years_ruled_during_absolutism_sweden,na.rm=TRUE)
+```
+
+Thus, the average duration of reign during absolutism in Sweden was 29, which is 15,9 years higher than the average duration of reign for all the Swedish monarchs. 
+
+Now, a third data frame will be created, which contains only the monarchs that reigned before absolutism. Then the same results have been found across both nations, and then one can begin to compare and contrast absolutism in Denmark and Sweden. 
+
+
+## Creating a dataframe containing only the Swedish monarchs that reigned before absolutism 
+
+The same functions as was used to create the previous data frame, is employed. first_year_ruled_sweden<1659 ensures that only the monarchs who reigned before Karl the 11th are included. 
+```{r}
+swedish_monarchs_before_absolutism <- filter(swedish_monarchs,first_year_ruled_sweden<1659, no_years_ruled_sweden!="NA")
+
+swedish_monarchs_before_absolutism
+```
+
+
+Then, the column containing the number of years reigned can be made into a vector, and the mean() function can be used to find the average duration of reign for the Swedish monarchs before absolutism. 
+```{r}
+no_years_ruled_before_absolutism_sweden <- swedish_monarchs_before_absolutism[[7]]
+
+no_years_ruled_before_absolutism_sweden
+
+mean(no_years_ruled_before_absolutism_sweden,na.rm=TRUE)
+```
+The average duration of reign before absolutism in Sweden was 11,3 years. This is 1,6 years shorter than the overall average, and a significant 17,7 years shorter than the average duration of reign during absolutism. 
+
+# Average duration of reign both before and during absolutism 
+In order to create figures and to properly compare the reigns before and during absolutism, the average duration of reign of both will be calculated. Firstly, two new dataframes will be created containing the monarchs that ruled before, and the ones that ruled during. Then, the mean() function can be used to find the average duration of reign. 
+
+Firstly, Denmark 
+```{r}
+danish_monarchs_all <- bind_rows(
+  danish_monarchs_before_absolutism,
+  danish_monarchs_during_absolutism
+) %>%
+  mutate(
+    first_year_ruled = as.numeric(first_year_ruled),
+    absolutism = first_year_ruled >= 1647
+  )
+
+mean(danish_monarchs_all$no_years_ruled,na.rm=TRUE)
+```
+Secondly, Sweden 
+```{r}
+swedish_monarchs_all <- bind_rows(
+  swedish_monarchs_before_absolutism,
+  swedish_monarchs_during_absolutism
+)
+
+mean(swedish_monarchs_all$no_years_ruled,na.rm=TRUE)
+```
+The average duration of reign before and during absolutism was 18,8 years in Denmark and 11,8 years in Sweden. This average is useful when creating plots showing duration of reign over time. 
+
+## Plotting the results 
+After having conducted the same calculations in both dataframes, it becomes clear that the average duration of reign during absolutism was much higher in both Denmark and Sweden. In Denmark, the average duration of reign during absolutism was 25 years, 8,3 years higher than the average duration of reign before absolutism. In Sweden, the average duration of reign was 29 years, 17,7 years longer than the average duration of reign before absolutism. 
+This alone, however, cannot answer the research question, that absolutism positively affected the reigns of the absolutist monarchs. To properly begin to answer the research question, different plots will be created, and then they will be explored in depth in the written part of the assignment. 
+
+# Visualizing the findings relating to absolutism in Denmark
+
+## Boxplot of Danish rulers before and during absolutism
+```{r}
+danish_monarchs_all$first_year_plot <- as.numeric(danish_monarchs_all[[5]])
+danish_monarchs_all$last_year_plot <- as.numeric(danish_monarchs_all[[6]])
+danish_monarchs_all$no_years_plot <- danish_monarchs_all$last_year_plot - danish_monarchs_all$first_year_plot
+
+danish_monarchs_all$period <- ifelse(
+  danish_monarchs_all$first_year_plot >= 1647,
+  "During absolutism",
+  "Before absolutism"
+)
+
+denmark_absolutism_boxplot <- ggplot(
+  danish_monarchs_all,
+  aes(
+    x = period,
+    y = no_years_plot,
+    fill = period
+  )
+) +
+  geom_boxplot(alpha = 0.8) +
+  scale_fill_manual(
+    values = c(
+      "Before absolutism" = "grey70",
+      "During absolutism" = "purple"
+    )
+  ) +
+  labs(
+    title = "Distribution of reign length before and during absolutism, Denmark",
+    x = "",
+    y = "Number of years ruled",
+    fill = "Period"
+  ) +
+  theme_minimal()
+
+# Showing the plot
+denmark_absolutism_boxplot
+
+# Saving it as a png 
+ggsave(
+  filename = here("figures", "denmark_absolutism_boxplot.png"),
+  plot = denmark_absolutism_boxplot,
+  height = 6,
+  width = 8
+)
+```
+
+
+## Duration of reign before and during absolutism, Denmark - Barplot 
+```{r,fig.height=10,fig.width=8}
+avg_years_ruled <- mean(danish_monarchs_all$no_years_ruled, na.rm = TRUE)
+
+denmark_all_monarchs_bar <- ggplot(
+  danish_monarchs_all,
+  aes(
+    x = reorder(regent, -first_year_ruled),
+    y = no_years_ruled,
+    fill = absolutism
+  )
+) +
+  geom_col() +
+  geom_hline(
+    aes(yintercept = avg_years_ruled, linetype = "Average reign length"),
+    color = "black"
+  ) +
+  coord_flip() +
+  scale_fill_manual(
+    values = c("FALSE" = "grey70", "TRUE" = "purple"),
+    labels = c("Before absolutism", "During absolutism"),
+    name = "Period"
+  ) +
+  scale_linetype_manual(
+    values = c("Average reign length" = "dashed"),
+    name = ""
+  ) +
+  labs(
+    title = "Duration of reign for Danish monarchs before and during absolutism",
+    x = "Monarch",
+    y = "Number of years ruled"
+  ) +
+  theme_minimal()
+
+# Showing the plot
+denmark_all_monarchs_bar
+
+# Saving it as a png 
+ggsave(
+  filename = here("figures", "denmark_all_monarchs_bar.png"),
+  plot = denmark_all_monarchs_bar,
+  height = 10,
+  width = 8
+)
+```
+
+
+
+## Duration of reign over time before and during absolutism, Sweden - Barplot 
+```{r,fig.height=10,fig.width=8}
+swedish_monarchs_all$regent_plot <- swedish_monarchs_all[[1]]
+swedish_monarchs_all$first_year_plot <- as.numeric(swedish_monarchs_all[[5]])
+swedish_monarchs_all$last_year_plot <- as.numeric(swedish_monarchs_all[[6]])
+swedish_monarchs_all$no_years_plot <- swedish_monarchs_all$last_year_plot - swedish_monarchs_all$first_year_plot
+swedish_monarchs_all$absolutism <- swedish_monarchs_all$first_year_plot >= 1660
+
+avg_years_ruled_sweden <- mean(swedish_monarchs_all$no_years_plot, na.rm = TRUE)
+
+sweden_all_monarchs_bar <- ggplot(
+  swedish_monarchs_all,
+  aes(
+    x = reorder(regent_plot, -first_year_plot),
+    y = no_years_plot,
+    fill = absolutism
+  )
+) +
+  geom_col() +
+  geom_hline(
+    aes(yintercept = avg_years_ruled_sweden,
+        linetype = "Average reign length"),
+    color = "black"
+  ) +
+  coord_flip() +
+  scale_fill_manual(
+    values = c("FALSE" = "grey70", "TRUE" = "purple"),
+    labels = c("Before absolutism", "During absolutism"),
+    name = "Period"
+  ) +
+  scale_linetype_manual(
+    values = c("Average reign length" = "dashed"),
+    name = ""
+  ) +
+  labs(
+    title = "Duration of reign for Swedish monarchs before and during absolutism",
+    x = "Monarch",
+    y = "Number of years ruled"
+  ) +
+  theme_minimal()
+
+# Showing the plot
+sweden_all_monarchs_bar
+
+# Saving it as a png
+ggsave(
+  filename = here("figures", "sweden_all_monarchs_bar.png"),
+  plot = sweden_all_monarchs_bar,
+  height = 10,
+  width = 8
+)
+```
+
+
+## Boxplot of Swedish rulers before and during absolutism
+```{r}
+swedish_monarchs_all$first_year_plot <- as.numeric(swedish_monarchs_all[[5]])
+swedish_monarchs_all$last_year_plot <- as.numeric(swedish_monarchs_all[[6]])
+swedish_monarchs_all$no_years_plot <- swedish_monarchs_all$last_year_plot - swedish_monarchs_all$first_year_plot
+
+swedish_monarchs_all$period <- ifelse(
+  swedish_monarchs_all$first_year_plot >= 1660,
+  "During absolutism",
+  "Before absolutism"
+)
+
+sweden_absolutism_boxplot <- ggplot(
+  swedish_monarchs_all,
+  aes(
+    x = period,
+    y = no_years_plot,
+    fill = period
+  )
+) +
+  geom_boxplot(alpha = 0.8) +
+  scale_fill_manual(
+    values = c(
+      "Before absolutism" = "grey70",
+      "During absolutism" = "purple"
+    )
+  ) +
+  labs(
+    title = "Distribution of reign length before and during absolutism, Sweden",
+    x = "",
+    y = "Number of years ruled",
+    fill = "Period"
+  ) +
+  theme_minimal()
+
+# Showing the plot
+sweden_absolutism_boxplot
+
+# Saving it as a png 
+ggsave(
+  filename = here("figures", "sweden_absolutism_boxplot.png"),
+  plot = sweden_absolutism_boxplot,
+  height = 6,
+  width = 8
+)
+```
+
+
+# Conclusion
+
+Thus, in Denmark the average duration of reign for all monarchs is 19,4 years, the average duration of reign for the monarchs that reigned during absolutism is 25 years and the average duration of reign before absolutism is 16,7 years. 
+The average duration of reign both before and during absolutism was also calculated, and it was 18,1 years. This is relevant in relation to the plots that have been created. 
+Looking at these different averages, it is clear that the average duration of reign during absolutism was much higher than before absolutism. 
+This is also true of the Swedish monarchs. The average duration of reign before absolutism was 11,3 years, the average duration of reign during absolutism was 29 years and the overall average was 13,1 years. The average duration of reign both before and during absolutism was also calculated This was 11,8 years, and is relevant in relation to the different figures. 
+If one only considered the different averages, one could be inclined to conclude that absolutism did have a positive effect on the reigns of the absolute monarchs. 
+These different averages, however, is not basis enough for such a conclusion. One must consider the averages in relation to the monarchs before and during absolutism, before one can begin to answer the research question.  
+A closer examination of the plots that have been created will be done in the written assignment. Then one can begin to assess whether absolutism did indeed have a positive effect on the duration of reigns of the Swedish and Danish monarchs. 
